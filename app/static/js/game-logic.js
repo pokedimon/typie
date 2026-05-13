@@ -2,6 +2,7 @@ function gameHandler() {
     return {
 
         score: 0,
+        roundScore: 0,
         timer: 0,
         isStartScreen: true,
         showSettings: false,
@@ -16,7 +17,7 @@ function gameHandler() {
             letters: "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ",
             speed: 1.0,
             time: 60,
-            skin: "🐵"
+            skin: "🐒"
         },
 
         init() {
@@ -32,13 +33,20 @@ function gameHandler() {
             localStorage.setItem('typie_sandbox_settings', JSON.stringify(this.sandbox));
         },
 
+        loadSandboxSettings() {
+            const saved = localStorage.getItem('typie_sandbox_settings');
+            if (saved) {
+                this.sandbox = JSON.parse(saved);
+            }
+        },
+
         startRound() {
             this.isStartScreen = false;
             this.gameOver = false;
             this.isPaused = false;
             this.showSettings = false;
             this.timer = this.sandbox.time;
-            this.saveProgress();
+            this.roundScore = 0;
             this.startLoop();
         },
 
@@ -101,10 +109,14 @@ function gameHandler() {
             const baseSpeed = 0.6 + Math.random() * 0.8;
             const finalSpeed = baseSpeed * this.sandbox.speed;
 
-            if (side === 0) { x = Math.random() * fw; y = -100; vx = (Math.random() - 0.5) * 0.5; vy = finalSpeed; }
-            else if (side === 1) { x = fw + 100; y = Math.random() * fh; vx = -finalSpeed; vy = (Math.random() - 0.5) * 0.5; }
-            else if (side === 2) { x = Math.random() * fw; y = fh + 100; vx = (Math.random() - 0.5) * 0.5; vy = -finalSpeed; }
-            else { x = -100; y = Math.random() * fh; vx = finalSpeed; vy = (Math.random() - 0.5) * 0.5; }
+            const angle = Math.random() * Math.PI * 2;
+            const vxRandom = Math.cos(angle) * finalSpeed;
+            const vyRandom = Math.sin(angle) * finalSpeed;
+
+            if (side === 0) { x = Math.random() * fw; y = -100; vx = vxRandom; vy = vyRandom; }
+            else if (side === 1) { x = fw + 100; y = Math.random() * fh; vx = vxRandom; vy = vyRandom; }
+            else if (side === 2) { x = Math.random() * fw; y = fh + 100; vx = vxRandom; vy = vyRandom; }
+            else { x = -100; y = Math.random() * fh; vx = vxRandom; vy = vyRandom; }
 
             const chars = this.sandbox.letters;
             if (!chars) return;
@@ -127,19 +139,21 @@ function gameHandler() {
 
             const char = e.key.toUpperCase();
             const index = this.monkeys.findIndex(m => m.letter === char && !m.isCaught);
-
             if (index !== -1) {
-                this.score += 10;
+                this.roundScore += 10;
                 const m = this.monkeys[index];
                 m.isCaught = true;
                 setTimeout(() => m.removed = true, 500);
-                this.saveProgress();
+            } else {
+                this.roundScore = Math.max(0, this.roundScore - 5);
             }
         },
 
         endRound() {
             clearInterval(this.loopId);
             clearInterval(this.timerIntervalId);
+            this.score += this.roundScore;
+            this.saveProgress();
             this.gameOver = true;
         },
 
