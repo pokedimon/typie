@@ -17,50 +17,57 @@
     </style>
 </head>
 
-<body class="relative flex flex-col min-h-screen font-montserrat"
-    x-data="{showModal: false, formType: 'register', loggedIn: false}">
+<body class="relative flex flex-col min-h-screen font-montserrat" x-data="hashModal()" x-init="init()">
     <nav
         class=" bg-medium-jungle-900/80 text-gray-300 rounded-b-2xl px-6 py-4 mx-4 flex justify-between items-center backdrop-blur-xs">
         <div class="flex items-center space-x-7 text-lg">
             <a href="{{ url_for('index') }}" class="text-2xl font-press-start text-bright-lemon-300">Тайпи</a>
             <a href="{{ url_for('leaderboard') }}" class="hover:text-white transition-colors duration-100">Таблица
                 лидеров</a>
-            <a href="#" class="hover:text-white transition-colors duration-100">Друзья</a>
+            <a href="{{ url_for('sandbox') }}" class="hover:text-white transition-colors duration-100">Песочница</a>
         </div>
         <div class="flex items-center space-x-4">
-            <button
-                class="bg-bright-lemon-400 hover:bg-bright-lemon-600 text-gray-900 font-bold py-2 px-6 rounded-full font-montserrat transition-colors duration-200"
-                @click="formType = 'login'; showModal = true">
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('profile', user_id=current_user.id) }}" class="text-white hover:text-gray-300">
+                {{ current_user.first_name }} {{ current_user.last_name }}
+            </a>
+            <a href="{{ url_for('logout') }}"
+                class="bg-bright-lemon-400 hover:bg-bright-lemon-600 text-gray-900 font-bold py-2 px-6 rounded-full font-montserrat transition-colors duration-200">
+                Выход
+            </a>
+            {% else %}
+            <a href="#login" @click="window.location.hash = '#login'"
+                class="bg-bright-lemon-400 hover:bg-bright-lemon-600 text-gray-900 font-bold py-2 px-6 rounded-full font-montserrat transition-colors duration-200">
                 Вход
-            </button>
-            <button
-                class="bg-bright-lemon-400 hover:bg-bright-lemon-600 text-gray-900 font-bold py-2 px-6 rounded-full font-montserrat transition-colors duration-200"
-                @click="formType = 'register'; showModal = true">
+            </a>
+            <a href="#register" @click="window.location.hash = '#register'"
+                class="bg-bright-lemon-400 hover:bg-bright-lemon-600 text-gray-900 font-bold py-2 px-6 rounded-full font-montserrat transition-colors duration-200">
                 Регистрация
-            </button>
+            </a>
+            {% endif %}
         </div>
     </nav>
     {% block content %}{% endblock %}
-    <div x-show="showModal" x-transition:enter="transition duration-300" x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100" x-transition:leave="transition duration-300"
-        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" role="dialog">
-        <div x-show="showModal" x-transition:enter="transition-all duration-300 ease-out"
+    <div x-show="currentHash === '#register' || currentHash === '#login'"
+        class="transition duration-300 fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+        x-transition:leave="transition duration-300" x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0" role="dialog">
+        <div x-transition:enter="transition-all duration-300 ease-out"
             x-transition:enter-start="opacity-0 -translate-y-20" x-transition:enter-end="opacity-100 translate-y-0"
             x-transition:leave="transition-all duration-300 ease-in"
             x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-20"
-            @click.outside="showModal = false"
-            class="bg-medium-jungle-900/80 w-[35vw] min-w-sm min-h-50 rounded-4xl shadow-lg relative backdrop-blur-xs">
-            <button @click="showModal = false" class="absolute top-4 right-4 text-white hover:text-gray-300 text-xl">
+            @click.outside="closeModal()"
+            class="bg-medium-jungle-900/80 w-[35vw] min-w-sm min-h-50 rounded-4xl shadow-lg relative backdrop-blur-xs p-8">
+            <button @click="closeModal" class="absolute top-4 right-4 text-white hover:text-gray-300 text-xl">
                 <span class="material-symbols-rounded">
                     close
                 </span>
             </button>
-            <div class="p-8 text-center">
-                <h2 x-text="formType === 'login' ? 'Вход' : 'Регистрация'" class="text-2xl font-bold text-white mb-6">
-                </h2>
-                <form method="POST" class="flex flex-col gap-3 text-white" x-show:="formType === 'register'"
-                    x-data="{ inSchool: false }">
+            <div x-show="currentHash === '#register'">
+                <h2 class="text-2xl font-bold text-white mb-6 text-center">Регистрация</h2>
+                <form method="POST" class="flex flex-col gap-3 text-white" x-data="{ inSchool: false }"
+                    @submit.prevent="submitRegister">
                     <input type="text" placeholder="Логин" name="login" x-model="login" required
                         class="border border-white p-3 rounded-full">
                     <input type="password" placeholder="Пароль" name="password" x-model="password" required
@@ -74,7 +81,8 @@
                     <div class="flex flex-row justify-between items-center px-3">
                         <div class="flex flex-row items-center gap-3 py-3 border border-transparent">
                             Ученик школы
-                            <input type="checkbox" id="inSchool" name="inSchool" x-model="inSchool" class="peer" hidden>
+                            <input type="checkbox" id="inSchool" name="inSchool" x-model="inSchool"
+                                class="peer" hidden>
                             <label for="inSchool"
                                 class="size-6 rounded-full border-white border-2 peer-checked:bg-bright-lemon-400 peer-checked:border-bright-lemon-400"></label>
                         </div>
@@ -84,31 +92,37 @@
                                 <input type="number" name="grade" placeholder="1-11" x-model="filterGrade"
                                     x-on:keydown="if ($event.key === '-' || $event.key === 'Subtract') $event.preventDefault()"
                                     x-on:input="let val = $event.target.value.replace(/[^0-9]/g, ''); if (val !== '') { val = Math.min(Math.max(Number(val), 1), 11); $event.target.value = val; filterGrade = Number(val) } else { filterGrade = '' }"
-                                    min="1" max="11" step="1"
-                                    title="Введите класс от 1 до 11"
+                                    min="1" max="11" step="1" title="Введите класс от 1 до 11"
                                     class="w-full px-4 py-3 border border-white rounded-full text-white">
                             </div>
                         </div>
                     </div>
+                    
+                    <div id="register-messages" class="flex flex-col gap-1"></div>
+                    {% for m in message %}
+                    <p class="text-red-500">{{ m }}</p>
+                    {% endfor %}
                     <input type="submit" value="Зарегистрироваться"
                         class="bg-bright-lemon-400 hover:bg-bright-lemon-600 text-gray-900 font-bold mt-4 py-2 px-6 rounded-full font-montserrat transition-colors duration-200">
                 </form>
-                <form method="POST" class="flex flex-col gap-3 text-white" x-show:="formType === 'login'">
+            </div>
+            <div x-show="currentHash === '#login'">
+                <h2 class="text-2xl font-bold text-white mb-6 text-center">Вход</h2>
+                <form method="POST" class="flex flex-col gap-3 text-white" @submit.prevent="submitLogin">
                     <input type="text" placeholder="Логин" name="login" x-model="login" required
                         class="border border-white p-3 rounded-full">
                     <input type="password" placeholder="Пароль" name="password" x-model="password" required
                         class="border border-white p-3 rounded-full">
+                    
+                    <div id="login-messages" class="flex flex-col gap-1"></div>
                     <input type="submit" value="Войти"
                         class="bg-bright-lemon-400 hover:bg-bright-lemon-600 text-gray-900 font-bold mt-4 py-2 px-6 rounded-full font-montserrat transition-colors duration-200">
                 </form>
-                <button @click="formType = formType === 'login' ? 'register' : 'login'"
-                    class="text-bright-lemon-500 no-underline hover:underline mt-4">
-                    <span x-text="formType === 'login' ? 'Регистрация' : 'Вход'"></span>
-                </button>
             </div>
         </div>
     </div>
     <script src="https://unpkg.com/simplebar@latest/dist/simplebar.min.js"></script>
+    <script src="{{ url_for('static', filename='js/modal-route.js') }}?v=1"></script>
 </body>
 
 </html>

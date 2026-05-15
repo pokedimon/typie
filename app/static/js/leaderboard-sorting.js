@@ -1,24 +1,22 @@
 function leaderboardSorting() {
     return {
-        leaders: [
-            { name: 'Алексей М.', grade: '5-7', score: 12500, rank: 1 },
-            { name: 'Мария К.', grade: '8-11', score: 11200, rank: 2 },
-            { name: 'Дмитрий С.', grade: '3', score: 9800, rank: 3 },
-            { name: 'Анна П.', grade: '2', score: 8700, rank: 4 },
-            { name: 'Иван Т.', grade: '1', score: 7500, rank: 5 },
-            { name: 'Елена В.', grade: '4', score: 6300, rank: 6 },
-            { name: 'Сергей Л.', grade: '8-11', score: 5100, rank: 7 },
-            { name: 'Ольга Н.', grade: 'Дошкольник', score: 3900, rank: 8 },
-            { name: 'Алексей М.', grade: '5-7', score: 3800, rank: 9 },
-            { name: 'Мария К.', grade: '8-11', score: 3700, rank: 10 },
-            { name: 'Дмитрий С.', grade: '3', score: 3600, rank: 11 },
-            { name: 'Анна П.', grade: '2', score: 3500, rank: 12 }, { name: 'Анна П.', grade: '2', score: 3400, rank: 13 }, { name: 'Анна П.', grade: '2', score: 3300, rank: 14 }, { name: 'Анна П.', grade: '2', score: 3200, rank: 15 }
-        ],
+        leaders: [],
         searchName: '',
         filterGrade: '',
         sortKey: 'score',
         sortAsc: false,
-        gradeOrder: ['Дошкольник', '1', '2', '3', '4', '5-7', '8-11'],
+        gradeOrder: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'],
+        init() {
+            fetch('/api/leaderboard')
+                .then(r => r.json())
+                .then(data => {
+                    data.forEach((item, idx) => {
+                        item.rank = idx + 1;
+                    });
+                    this.leaders = data;
+                })
+                .catch(err => console.error('Failed to load leaderboard:', err));
+        },
         sortBy(key) {
             if (this.sortKey === key) {
                 this.sortAsc = !this.sortAsc;

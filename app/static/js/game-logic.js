@@ -21,15 +21,23 @@ function gameHandler() {
         },
 
         init() {
-            const savedScore = localStorage.getItem('typie_total_score');
             const savedSettings = localStorage.getItem('typie_sandbox_settings');
-
-            if (savedScore) this.score = parseInt(savedScore);
             if (savedSettings) this.sandbox = JSON.parse(savedSettings);
+
+            fetch('/get_score', { credentials: 'same-origin' })
+                .then(r => {
+                    if (!r.ok) throw new Error('Not logged in');
+                    return r.json();
+                })
+                .then(data => {
+                    this.score = data.total_score || 0;
+                })
+                .catch(() => {
+                    this.score = 0;
+                });
         },
 
         saveProgress() {
-            localStorage.setItem('typie_total_score', this.score);
             localStorage.setItem('typie_sandbox_settings', JSON.stringify(this.sandbox));
         },
 
@@ -159,7 +167,27 @@ function gameHandler() {
             clearInterval(this.loopId);
             clearInterval(this.timerIntervalId);
             this.score += this.roundScore;
-            this.saveProgress();
+            fetch('/update_score', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ score: this.score })
+            })
+                .catch(err => console.error('Failed to update score:', err));
+
+            fetch('/creategame', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    chars: this.sandbox.letters,
+                    velocity: this.sandbox.speed,
+                    time: this.sandbox.time,
+                    score: this.roundScore
+                })
+            })
+                .catch(err => console.error('Failed to create game record:', err));
+
             this.gameOver = true;
         },
 
