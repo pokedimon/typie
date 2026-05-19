@@ -3,6 +3,7 @@ import json
 from flask import Flask, render_template, url_for, request, redirect, jsonify
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 import secrets
+import base64
 from app.db.db_connection import database
 from app.models.user_model import User
 from app.models.game_model import Game
@@ -43,10 +44,37 @@ def leaderboard():
     return render_template("leaderboard.html")
 
 
-@app.route("/profile?<int:user_id>")
-@login_required
+@app.route("/profile/<int:user_id>")
 def profile(user_id):
-    return render_template("profile.html", user_id=user_id)
+    user = database.session.get(User, user_id)
+    if not user:
+        return redirect(url_for('index'))
+    avatar_b64 = base64.b64encode(user.avatar).decode('utf-8') if user.avatar else ""
+    return render_template("profile.html", user=user, avatar_b64=avatar_b64)
+
+
+@app.route("/edit_profile", methods=["POST"])
+@login_required
+def edit_profile():
+    data = json.loads(request.data)
+    first_name = data.get("first_name")
+    last_name = data.get("last_name")
+    avatar_b64 = data.get("avatar_b64")
+    
+    if first_name:
+        current_user.first_name = first_name
+    if last_name:
+        current_user.last_name = last_name
+    if avatar_b64:
+        if "," in avatar_b64:
+            avatar_b64 = avatar_b64.split(",")[1]
+        try:
+            current_user.avatar = base64.b64decode(avatar_b64)
+        except Exception:
+            pass
+            
+    database.session.commit()
+    return jsonify({"status": "ok"})
 
 
 @app.route("/createuser", methods=["POST"])
@@ -96,9 +124,30 @@ def api_leaderboard():
     result = []
     for u in users:
         result.append({
+            "id": u.id,
             "name": f"{u.first_name} {u.last_name}",
             "grade": str(u.grade),
             "score": u.total_score,
+            "rank": 0,
+            "avatar_b64": u.avatar_b64
+        })
+    return jsonify(result)
+
+
+@app.route("/api/games", methods=["GET"])
+def api_games():
+    games = database.session.query(Game).order_by(Game.score.desc()).all()
+    result = []
+    for g in games:
+        result.append({
+            "user_id": g.user.id,
+            "name": f"{g.user.first_name} {g.user.last_name}",
+            "grade": str(g.user.grade),
+            "avatar_b64": g.user.avatar_b64,
+            "chars_len": len(g.chars) if g.chars else 0,
+            "velocity": str(g.velocity),
+            "time": g.time,
+            "score": g.score,
             "rank": 0
         })
     return jsonify(result)

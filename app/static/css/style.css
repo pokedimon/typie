@@ -1,5 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat&family=Slackey&family=Press+Start+2P&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=arrow_downward,arrow_upward,close,mobiledata_arrows,replay,settings");
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=arrow_downward,arrow_upward,close,edit,logout,mobiledata_arrows,person,replay,settings");
 @import "tailwindcss";
 
 @theme {

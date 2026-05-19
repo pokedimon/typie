@@ -2,6 +2,7 @@ from flask_login import UserMixin
 from sqlalchemy import LargeBinary
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from werkzeug.security import check_password_hash, generate_password_hash
+import base64
 
 from app.db.db_connection import database
 
@@ -21,6 +22,12 @@ class User(database.Model, UserMixin):
     total_score: Mapped[int] = mapped_column(nullable=False, default=0)
 
     games = relationship("Game", back_populates="user")
+
+    @property
+    def avatar_b64(self):
+        if self.avatar:
+            return base64.b64encode(self.avatar).decode('utf-8')
+        return ""
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)
