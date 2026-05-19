@@ -14,7 +14,7 @@ function gameHandler() {
         timerIntervalId: null,
 
         sandbox: {
-            letters: "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ",
+            letters: "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ",
             speed: 1.0,
             time: 60,
             skin: "🐒"
@@ -149,15 +149,16 @@ function gameHandler() {
 
             const char = e.key.toUpperCase();
             const index = this.monkeys.findIndex(m => m.letter === char && !m.isCaught);
+            const multiplier = 1 + (1 + this.sandbox.time / 360 + this.sandbox.letters.length / 66);
             if (index !== -1) {
-                this.roundScore += 5 * this.sandbox.speed + 5;
+                this.roundScore += Math.round((5 * this.sandbox.speed + 5) * multiplier);
                 this.pulseClass = 'bg-green-600/30 transition-colors duration-100';
                 setTimeout(() => { this.pulseClass = ''; }, 300);
                 const m = this.monkeys[index];
                 m.isCaught = true;
                 setTimeout(() => m.removed = true, 500);
-            } else if (index === -1 && /^[А-ЯЁ]$/.test(char)) {
-                this.roundScore = Math.max(0, this.roundScore - 5 * this.sandbox.speed);
+            } else if (index === -1 && /^[А-Я]$/.test(char)) {
+                this.roundScore = Math.max(0, Math.round((this.roundScore - 5 * this.sandbox.speed) * multiplier));
                 this.pulseClass = 'bg-red-600/30 transition-colors duration-100';
                 setTimeout(() => { this.pulseClass = ''; }, 300);
             }
