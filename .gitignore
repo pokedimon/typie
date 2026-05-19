@@ -1,9 +1,11 @@
 /.idea
 **/__pycache__
 /.vscode
+/.agent
 /.venv
 /node_modules
 /typie-main
 /package-lock.json
 /test.html
+/test.py
 /typie.code-workspace

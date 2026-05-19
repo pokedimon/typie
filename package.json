@@ -2,7 +2,7 @@
   "dependencies": {
     "@tailwindcss/cli": "^4.2.2",
     "simplebar": "^6.3.3",
-    "tailwindcss": "^4.2.2"
+    "tailwindcss": "^4.3.0"
   },
   "name": "typie",
   "version": "1.0.0",
