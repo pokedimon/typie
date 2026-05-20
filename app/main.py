@@ -1,6 +1,6 @@
 import os
 import json
-from flask import Flask, render_template, url_for, request, redirect, jsonify
+from flask import Flask, render_template, url_for, request, redirect, jsonify, session
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 import secrets
 import base64
@@ -25,6 +25,33 @@ with app.app_context():
 def load_user(user_id):
     return database.session.get(User, user_id)
 
+@login_manager.unauthorized_handler
+def unauthorized_callback():
+    return redirect(url_for('index') + '#login')
+
+LEVELS = [
+    {"id": 1, "title": "Основы", "description": "Базовые гласные А, О, У.", "keys": "АОУ", "speed": 1.0, "time": 30, "target_score": 30},
+    {"id": 2, "title": "Новая буква: К", "description": "Добавляем согласную К.", "keys": "АОУК", "speed": 1.0, "time": 30, "target_score": 40},
+    {"id": 3, "title": "Новая буква: М", "description": "Продолжаем с согласной М.", "keys": "АОУКМ", "speed": 1.0, "time": 30, "target_score": 50},
+    {"id": 4, "title": "Новая буква: Н", "description": "Добавляем Н.", "keys": "АОУКМН", "speed": 1.0, "time": 40, "target_score": 70},
+    {"id": 5, "title": "Проверка 1", "description": "Немного быстрее. Повторяем АОУКМН.", "keys": "АОУКМН", "speed": 2.0, "time": 40, "target_score": 80},
+    {"id": 6, "title": "Новая буква: Е", "description": "Мягкая гласная Е.", "keys": "АОУКМНЕ", "speed": 2.0, "time": 40, "target_score": 90},
+    {"id": 7, "title": "Новая буква: И", "description": "Добавляем И.", "keys": "АОУКМНЕИ", "speed": 2.0, "time": 40, "target_score": 100},
+    {"id": 8, "title": "Согласные С, В", "description": "Добавляем С и В.", "keys": "АОУКМНЕИСВ", "speed": 2.0, "time": 50, "target_score": 110},
+    {"id": 9, "title": "Согласная Т", "description": "Популярная согласная Т.", "keys": "АОУКМНЕИСВТ", "speed": 2.0, "time": 50, "target_score": 120},
+    {"id": 10, "title": "Проверка 2", "description": "Закрепляем первые 11 букв.", "keys": "АОУКМНЕИСВТ", "speed": 3.0, "time": 50, "target_score": 150},
+    {"id": 11, "title": "Шипящие Ш, Щ", "description": "Осторожно, они похожи!", "keys": "АОУКМНЕИСВТШЩ", "speed": 3.0, "time": 60, "target_score": 175},
+    {"id": 12, "title": "Согласная Ч", "description": "Добавляем Ч.", "keys": "АОУКМНЕИСВТШЩЧ", "speed": 3.0, "time": 60, "target_score": 200},
+    {"id": 13, "title": "Согласные Р, П", "description": "Р и П идут в бой.", "keys": "АОУКМНЕИСВТШЩЧРП", "speed": 3.0, "time": 60, "target_score": 225},
+    {"id": 14, "title": "Согласная Л", "description": "Л - любимая буква.", "keys": "АОУКМНЕИСВТШЩЧРПЛ", "speed": 3.0, "time": 70, "target_score": 250},
+    {"id": 15, "title": "Хитрые гласные", "description": "Я, Ю, Э.", "keys": "АОУКМНЕИСВТШЩЧРПЛЯЮЭ", "speed": 3.0, "time": 70, "target_score": 275},
+    {"id": 16, "title": "Группа Б, В, Г, Д", "description": "Звонкие согласные.", "keys": "АОУКМНЕИСВТШЩЧРПЛЯЮЭБВГД", "speed": 4.0, "time": 70, "target_score": 300},
+    {"id": 17, "title": "Звонкие Ж, З, Ц, Й", "description": "Еще немного согласных.", "keys": "АОУКМНЕИСВТШЩЧРПЛЯЮЭБВГДЖЗЦЙ", "speed": 4.0, "time": 80, "target_score": 330},
+    {"id": 18, "title": "Редкие Ф, Х", "description": "Ф и Х на краях клавиатуры.", "keys": "АОУКМНЕИСВТШЩЧРПЛЯЮЭБВГДЖЗЦЙФХ", "speed": 4.0, "time": 80, "target_score": 360},
+    {"id": 19, "title": "Знаки Ъ, Ы, Ь", "description": "Твердый и мягкий знаки, плюс Ы.", "keys": "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ", "speed": 4.0, "time": 90, "target_score": 400},
+    {"id": 20, "title": "Мастер", "description": "Сложное испытание на весь алфавит.", "keys": "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ", "speed": 5.0, "time": 120, "target_score": 500   },
+]
+
 
 @app.route("/", methods=["GET", "POST"])
 @app.route("/index", methods=["GET", "POST"])
@@ -37,6 +64,39 @@ def index(message=[]):
 @login_required
 def sandbox():
     return render_template("game.html")
+
+
+@app.route("/levels")
+def levels():
+    user_level = current_user.level if current_user.is_authenticated else session.get('level', 0)
+    return render_template("levels.html", levels=LEVELS, current_level=user_level)
+
+
+@app.route("/level/<int:level_id>")
+def play_level(level_id):
+    user_level = current_user.level if current_user.is_authenticated else session.get('level', 0)
+    if level_id > user_level + 1:
+        return redirect(url_for('levels'))
+    lvl = next((l for l in LEVELS if l["id"] == level_id), None)
+    if not lvl:
+        return redirect(url_for('levels'))
+    return render_template("level_play.html", level=lvl)
+
+
+@app.route("/update_level", methods=["POST"])
+def update_level():
+    data = json.loads(request.data)
+    completed_level_id = data.get("level")
+    user_level = current_user.level if current_user.is_authenticated else session.get('level', 0)
+
+    if completed_level_id > user_level:
+        if current_user.is_authenticated:
+            current_user.level = completed_level_id
+            database.session.commit()
+        else:
+            session['level'] = completed_level_id
+
+    return jsonify({"status": "ok", "level": max(completed_level_id, user_level)})
 
 
 @app.route("/leaderboard", methods=["GET", "POST"])
@@ -60,7 +120,7 @@ def edit_profile():
     first_name = data.get("first_name")
     last_name = data.get("last_name")
     avatar_b64 = data.get("avatar_b64")
-    
+
     if first_name:
         current_user.first_name = first_name
     if last_name:
@@ -72,7 +132,7 @@ def edit_profile():
             current_user.avatar = base64.b64decode(avatar_b64)
         except Exception:
             pass
-            
+
     database.session.commit()
     return jsonify({"status": "ok"})
 
@@ -122,13 +182,13 @@ def logout():
 def api_leaderboard():
     users = database.session.query(User).order_by(User.total_score.desc()).all()
     result = []
-    for u in users:
+    for idx, u in enumerate(users):
         result.append({
             "id": u.id,
             "name": f"{u.first_name} {u.last_name}",
             "grade": str(u.grade),
             "score": u.total_score,
-            "rank": 0,
+            "rank": idx + 1,
             "avatar_b64": u.avatar_b64
         })
     return jsonify(result)
@@ -138,7 +198,7 @@ def api_leaderboard():
 def api_games():
     games = database.session.query(Game).order_by(Game.score.desc()).all()
     result = []
-    for g in games:
+    for idx, g in enumerate(games):
         result.append({
             "user_id": g.user.id,
             "name": f"{g.user.first_name} {g.user.last_name}",
@@ -148,7 +208,7 @@ def api_games():
             "velocity": str(g.velocity),
             "time": g.time,
             "score": g.score,
-            "rank": 0
+            "rank": idx + 1
         })
     return jsonify(result)
 

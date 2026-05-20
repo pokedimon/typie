@@ -91,7 +91,6 @@ function leaderboardSorting() {
                 return (valA - valB) * dir;
             });
             
-            sorted.forEach((item, idx) => item.rank = idx + 1);
             return sorted;
         },
         
@@ -126,7 +125,6 @@ function leaderboardSorting() {
                 return (valA - valB) * dir;
             });
             
-            sorted.forEach((item, idx) => item.rank = idx + 1);
             return sorted;
         }
     };

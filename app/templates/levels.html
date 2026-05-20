@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="px-4 mt-8 flex flex-col py-4 grow">
+    <div class="bg-medium-jungle-900/80 text-white rounded-2xl p-6 backdrop-blur-xs flex flex-col h-full max-w-6xl mx-auto w-full">
+        
+        <!-- Header & Progress -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-white/10 pb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-bright-lemon-300 font-press-start mb-2">Обучение</h1>
+                <p class="text-gray-300">Пройди все уровни клавиатурного тренажера и стань мастером быстрой печати!</p>
+            </div>
+            
+            {% set completed_count = current_level %}
+            {% set progress = (completed_count / 20 * 100) | int %}
+            <div class="flex flex-col items-end gap-2 w-full md:w-64">
+                <div class="flex justify-between w-full text-sm font-semibold">
+                    <span>Прогресс: {{ completed_count }} из 20</span>
+                    <span class="text-bright-lemon-300">{{ progress }}%</span>
+                </div>
+                <div class="w-full bg-black/40 h-4 rounded-full overflow-hidden border border-white/10 p-0.5">
+                    <div class="bg-yellow-green-500 h-full rounded-full transition-all duration-500" style="width: {{ progress }}%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Levels Grid -->
+        <div data-simplebar class="grow overflow-y-auto pr-2 max-h-[60vh]">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-1">
+                {% for lvl in levels %}
+                    {% set is_completed = lvl.id <= current_level %}
+                    {% set is_active = lvl.id == current_level + 1 %}
+                    {% set is_locked = lvl.id > current_level + 1 %}
+
+                    <div class="relative rounded-3xl p-6 transition-all duration-300 border-2 flex flex-col justify-between min-h-64
+                        {% if is_completed %}
+                            bg-yellow-green-950/40 border-yellow-green-500/50 hover:border-yellow-green-400 shadow-[0_4px_20px_rgba(120,180,40,0.15)]
+                        {% elif is_active %}
+                            bg-medium-jungle-800/80 border-bright-lemon-300 shadow-[0_0_20px_rgba(212,225,87,0.3)] animate-pulse hover:scale-[1.02]
+                        {% else %}
+                            bg-black/20 border-white/10 opacity-60
+                        {% endif %}
+                    ">
+                        
+                        <!-- Level Meta Info -->
+                        <div>
+                            <div class="flex justify-between items-start mb-4">
+                                <span class="font-press-start text-xs uppercase tracking-widest px-3 py-1.5 rounded-full 
+                                    {% if is_completed %}
+                                        bg-yellow-green-500/20 text-yellow-green-300
+                                    {% elif is_active %}
+                                        bg-bright-lemon-300/20 text-bright-lemon-300
+                                    {% else %}
+                                        bg-white/10 text-gray-400
+                                    {% endif %}
+                                ">
+                                    Уровень {{ lvl.id }}
+                                </span>
+                                
+                                {% if is_completed %}
+                                    <span class="text-2xl text-yellow-green-400">🥇</span>
+                                {% elif is_locked %}
+                                    <span class="material-symbols-rounded text-gray-500 text-2xl select-none">lock</span>
+                                {% endif %}
+                            </div>
+
+                            <h2 class="text-xl font-bold mb-2 {% if is_locked %}text-gray-400{% else %}text-white{% endif %}">
+                                {{ lvl.title }}
+                            </h2>
+                            <p class="text-sm text-gray-300 mb-4 line-clamp-2">
+                                {{ lvl.description }}
+                            </p>
+                        </div>
+
+                        <!-- Keyboard Focus & CTA -->
+                        <div class="mt-4 flex flex-col gap-3">
+                            <div class="flex items-center gap-2 text-xs bg-black/30 p-2.5 rounded-xl border border-white/5">
+                                <span class="text-gray-400 font-bold uppercase shrink-0">Буквы:</span>
+                                <div class="flex flex-wrap gap-1">
+                                    {% for char in lvl['keys'] %}
+                                        <kbd class="px-2 py-0.5 bg-white/10 rounded font-mono font-bold text-white border-b border-white/20">{{ char }}</kbd>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            {% if is_completed %}
+                                <a href="{{ url_for('play_level', level_id=lvl.id) }}" 
+                                   class="bg-yellow-green-500 hover:bg-yellow-green-600 text-white font-bold py-3 px-4 rounded-2xl text-center transition-colors duration-200 shadow-md">
+                                    Пройти снова
+                                </a>
+                            {% elif is_active %}
+                                <a href="{{ url_for('play_level', level_id=lvl.id) }}" 
+                                   class="bg-bright-lemon-300 hover:bg-bright-lemon-400 text-medium-jungle-950 font-bold py-3 px-4 rounded-2xl text-center font-press-start text-xs tracking-wider transition-all duration-200 transform active:scale-95 shadow-[0_4px_0_#939d33]">
+                                    НАЧАТЬ
+                                </a>
+                            {% else %}
+                                <button disabled 
+                                        class="bg-white/5 text-gray-500 font-bold py-3 px-4 rounded-2xl cursor-not-allowed border border-white/5 text-center">
+                                    Заблокировано
+                                </button>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</main>
+{% endblock %}
