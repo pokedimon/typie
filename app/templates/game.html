@@ -13,12 +13,13 @@
             <div class="flex flex-row gap-2">
                 <button
                     class="bg-bright-lemon-300 text-medium-jungle-900 w-10 h-10 rounded-full flex items-center justify-center transition-transform duration-200 hover:scale-110"
-                    @click="restartGame()">
+                    @click="restartGame()" onclick="this.blur()">
                     <span class="material-symbols-rounded">replay</span>
                 </button>
                 <button
                     class="bg-bright-lemon-300 text-medium-jungle-900 w-10 h-10 rounded-full flex items-center justify-center transition-transform duration-200 hover:scale-110"
-                    @click="showSettings = !showSettings; if (showSettings) loadSandboxSettings(); isPaused = showSettings && !isStartScreen && !gameOver;">
+                    @click="showSettings = !showSettings; if (showSettings) loadSandboxSettings(); isPaused = showSettings && !isStartScreen && !gameOver;"
+                    onclick="this.blur()">
                     <span class="material-symbols-rounded">settings</span>
                 </button>
             </div>
@@ -27,11 +28,11 @@
             id="game-field">
             <div class="absolute top-5 left-5 right-5 flex justify-between items-center z-50 font-press-start"
                 x-show="!isStartScreen && !gameOver && !isPaused && !showSettings">
-                <div
-                    class="bg-black/60 px-5 py-2.5 rounded-xl border border-bright-lemon-300 text-sm">
+                <div class="bg-black/60 px-5 py-2.5 rounded-xl border border-bright-lemon-300 text-sm">
                     ВРЕМЯ: <span x-text="timer" :class="timer < 10 ? 'text-red-500' : 'text-bright-lemon-300'"></span>
                 </div>
-                <div class="bg-black/60 px-5 py-2.5 rounded-xl border border-bright-lemon-300 text-sm absolute left-1/2 transform -translate-x-1/2" :class="pulseClass">
+                <div class="bg-black/60 px-5 py-2.5 rounded-xl border border-bright-lemon-300 text-sm absolute left-1/2 transform -translate-x-1/2"
+                    :class="pulseClass">
                     <span x-text="roundScore"></span>
                 </div>
                 <div class="flex gap-4">
@@ -54,7 +55,8 @@
                 x-show="gameOver" x-cloak>
                 <h1 class="text-4xl text-bright-lemon-300 font-press-start mb-6">ВРЕМЯ ВЫШЛО!</h1>
                 <p class="text-xl mb-4" x-text="roundScore !== 0 ? 'Ты отлично справился!' : 'Попробуй снова!'"></p>
-                <div class="text-5xl text-yellow-green-400 font-press-start mb-10 transition-colors duration-300" x-text="roundScore" :class="pulseClass"></div>
+                <div class="text-5xl text-yellow-green-400 font-press-start mb-10 transition-colors duration-300"
+                    x-text="roundScore" :class="pulseClass"></div>
                 <div class="flex gap-6">
                     <button
                         class="bg-bright-lemon-300 text-medium-jungle-900 px-11 py-4 rounded-[2.5rem] font-press-start text-lg border-none cursor-pointer transition-all duration-200 shadow-[0_10px_0_#939d33] hover:-translate-y-1 hover:shadow-[0_12px_0_#939d33] active:translate-y-2 active:shadow-[0_3px_0_#939d33]"
