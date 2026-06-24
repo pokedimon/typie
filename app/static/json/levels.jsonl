@@ -1,0 +1,20 @@
+{"id": 1, "title": "Основы", "description": "Базовые гласные А, О, У.", "keys": "АОУ", "speed": 1.0, "time": 30, "target_score": 30}
+{"id": 2, "title": "Новая буква: К", "description": "Добавляем согласную К.", "keys": "АОУК", "speed": 1.0, "time": 30, "target_score": 40}
+{"id": 3, "title": "Новая буква: М", "description": "Продолжаем с согласной М.", "keys": "АОУКМ", "speed": 1.0, "time": 30, "target_score": 50}
+{"id": 4, "title": "Новая буква: Н", "description": "Добавляем Н.", "keys": "АОУКМН", "speed": 1.0, "time": 40, "target_score": 70}
+{"id": 5, "title": "Проверка 1", "description": "Немного быстрее. Повторяем АОУКМН.", "keys": "АОУКМН", "speed": 2.0, "time": 40, "target_score": 80}
+{"id": 6, "title": "Новая буква: Е", "description": "Мягкая гласная Е.", "keys": "АОУКМНЕ", "speed": 2.0, "time": 40, "target_score": 90}
+{"id": 7, "title": "Новая буква: И", "description": "Добавляем И.", "keys": "АОУКМНЕИ", "speed": 2.0, "time": 40, "target_score": 100}
+{"id": 8, "title": "Согласные С, В", "description": "Добавляем С и В.", "keys": "АОУКМНЕИСВ", "speed": 2.0, "time": 50, "target_score": 110}
+{"id": 9, "title": "Согласная Т", "description": "Популярная согласная Т.", "keys": "АОУКМНЕИСВТ", "speed": 2.0, "time": 50, "target_score": 120}
+{"id": 10, "title": "Проверка 2", "description": "Закрепляем первые 11 букв.", "keys": "АОУКМНЕИСВТ", "speed": 3.0, "time": 50, "target_score": 150}
+{"id": 11, "title": "Шипящие Ш, Щ", "description": "Осторожно, они похожи!", "keys": "АОУКМНЕИСВТШЩ", "speed": 3.0, "time": 60, "target_score": 175}
+{"id": 12, "title": "Согласная Ч", "description": "Добавляем Ч.", "keys": "АОУКМНЕИСВТШЩЧ", "speed": 3.0, "time": 60, "target_score": 200}
+{"id": 13, "title": "Согласные Р, П", "description": "Р и П идут в бой.", "keys": "АОУКМНЕИСВТШЩЧРП", "speed": 3.0, "time": 60, "target_score": 225}
+{"id": 14, "title": "Согласная Л", "description": "Л - любимая буква.", "keys": "АОУКМНЕИСВТШЩЧРПЛ", "speed": 3.0, "time": 70, "target_score": 250}
+{"id": 15, "title": "Хитрые гласные", "description": "Я, Ю, Э.", "keys": "АОУКМНЕИСВТШЩЧРПЛЯЮЭ", "speed": 3.0, "time": 70, "target_score": 275}
+{"id": 16, "title": "Группа Б, В, Г, Д", "description": "Звонкие согласные.", "keys": "АОУКМНЕИСВТШЩЧРПЛЯЮЭБВГД", "speed": 4.0, "time": 70, "target_score": 300}
+{"id": 17, "title": "Звонкие Ж, З, Ц, Й", "description": "Еще немного согласных.", "keys": "АОУКМНЕИСВТШЩЧРПЛЯЮЭБВГДЖЗЦЙ", "speed": 4.0, "time": 80, "target_score": 330}
+{"id": 18, "title": "Редкие Ф, Х", "description": "Ф и Х на краях клавиатуры.", "keys": "АОУКМНЕИСВТШЩЧРПЛЯЮЭБВГДЖЗЦЙФХ", "speed": 4.0, "time": 80, "target_score": 360}
+{"id": 19, "title": "Знаки Ъ, Ы, Ь", "description": "Твердый и мягкий знаки, плюс Ы.", "keys": "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ", "speed": 4.0, "time": 90, "target_score": 400}
+{"id": 20, "title": "Мастер", "description": "Сложное испытание на весь алфавит.", "keys": "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ", "speed": 5.0, "time": 120, "target_score": 500}
