@@ -1,6 +1,6 @@
 import os
 import json
-from flask import Flask, render_template, url_for, request, redirect, jsonify, session
+from flask import Flask, render_template, url_for, request, redirect, jsonify, session, current_app
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 import secrets
 import base64
@@ -9,6 +9,7 @@ from app.models.user_model import User
 from app.models.game_model import Game
 
 app = Flask(__name__, instance_path=os.getcwd())
+app.config['SERVER_NAME'] = 'localhost:8081'
 app.config["SECRET_KEY"] = secrets.token_urlsafe(32)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db/typie.db"
 app.config['SQLALCHEMY_ECHO'] = True
@@ -25,14 +26,12 @@ with app.app_context():
 def load_user(user_id):
     return database.session.get(User, user_id)
 
-@login_manager.unauthorized_handler
-def unauthorized_callback():
-    return redirect(url_for('index') + '#login')
 
 def _load_levels():
     loaded = []
+    file_path = os.path.join(current_app.static_folder, "json", "levels.jsonl")
     try:
-        with open(url_for('static', filename='json/levels.jsonl'), "r", encoding="utf-8") as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if line:
@@ -41,7 +40,14 @@ def _load_levels():
         loaded = []
     return loaded
 
-LEVELS = _load_levels()
+
+with app.app_context():
+    LEVELS = _load_levels()
+
+
+@login_manager.unauthorized_handler
+def unauthorized_callback():
+    return redirect(url_for('index') + '#login')
 
 
 @app.route("/", methods=["GET", "POST"])
