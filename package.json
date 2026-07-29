@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@tailwindcss/cli": "^4.2.2",
+    "alpinejs": "^3.15.12",
     "simplebar": "^6.3.3",
     "tailwindcss": "^4.3.0"
   },

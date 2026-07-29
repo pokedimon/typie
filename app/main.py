@@ -1,6 +1,6 @@
 import os
 import json
-from flask import Flask, render_template, url_for, request, redirect, jsonify, session, current_app
+from flask import Flask, render_template, url_for, request, redirect, jsonify, session, current_app, send_from_directory
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 import secrets
 import base64
@@ -22,11 +22,6 @@ with app.app_context():
     database.create_all()
 
 
-@login_manager.user_loader
-def load_user(user_id):
-    return database.session.get(User, user_id)
-
-
 def _load_levels():
     loaded = []
     file_path = os.path.join(current_app.static_folder, "json", "levels.jsonl")
@@ -45,9 +40,22 @@ with app.app_context():
     LEVELS = _load_levels()
 
 
+@login_manager.user_loader
+def load_user(user_id):
+    return database.session.get(User, user_id)
+
+
 @login_manager.unauthorized_handler
 def unauthorized_callback():
     return redirect(url_for('index') + '#login')
+
+
+@app.route("/node_modules/<path:filename>", methods=["GET"])
+def node_modules(filename):
+    parent_dir = os.path.dirname(os.path.abspath(app.root_path))
+    node_modules_path = os.path.join(parent_dir, 'node_modules')
+
+    return send_from_directory(node_modules_path, filename)
 
 
 @app.route("/", methods=["GET", "POST"])
