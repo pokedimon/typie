@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat&family=Slackey&family=Press+Start+2P&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=arrow_downward,arrow_upward,close,edit,lock,logout,mobiledata_arrows,person,replay,settings");
+/* @import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=arrow_downward,arrow_upward,close,edit,lock,logout,mobiledata_arrows,person,replay,settings"); */
+@import url("/static/css/material-symbols.css");
 @import "tailwindcss";
 
 @theme {
@@ -74,7 +75,6 @@
     margin-inline-end: 3px;
     margin-block: 5px;
 }
-
 
 .monkey-exit {
     animation: exit-anim 0.5s forwards ease-out;

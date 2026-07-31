@@ -50,6 +50,11 @@ def unauthorized_callback():
     return redirect(url_for('index') + '#login')
 
 
+@app.route("/static/<path:filename>")
+def static_route(filename):
+    return url_for("static", filename=filename)
+
+
 @app.route("/node_modules/<path:filename>", methods=["GET"])
 def node_modules(filename):
     parent_dir = os.path.dirname(os.path.abspath(app.root_path))
