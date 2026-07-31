@@ -1,4 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat&family=Slackey&family=Press+Start+2P&display=swap");
+/* @import url("https://fonts.googleapis.com/css2?family=Montserrat&family=Press+Start+2P&display=swap"); */
+@import url("/static/css/fonts.css");
 /* @import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=arrow_downward,arrow_upward,close,edit,lock,logout,mobiledata_arrows,person,replay,settings"); */
 @import url("/static/css/material-symbols.css");
 @import "tailwindcss";
@@ -15,7 +16,7 @@
     --color-evergreen-300: oklch(80.46% 0.090 150.28);
     --color-evergreen-400: oklch(74.11% 0.118 149.39);
     --color-evergreen-500: oklch(67.96% 0.146 147.90);
-    --color-evergreen-600: oklch(57.82% 0.121 148.23);
+    --color-e vergreen-600: oklch(57.82% 0.121 148.23);
     --color-evergreen-700: oklch(47.20% 0.097 148.29);
     --color-evergreen-800: oklch(35.69% 0.069 148.12);
     --color-evergreen-900: oklch(23.46% 0.038 149.47);
