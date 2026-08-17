@@ -2,7 +2,8 @@
 
 {% block content %}
 <main x-data="leaderboardSorting" class="px-4 mt-10 flex flex-col py-4">
-    <div class="bg-medium-jungle-900/80 text-white rounded-2xl p-6 backdrop-blur-xs flex flex-col overflow-hidden h-[80vh]">
+    <div
+        class="bg-medium-jungle-900/80 text-white rounded-2xl p-6 backdrop-blur-xs flex flex-col overflow-hidden h-[80vh]">
         <h1 class="text-3xl font-bold text-center text-bright-lemon-300 font-press-start mb-6">
             Таблица лидеров
         </h1>
@@ -11,11 +12,17 @@
                 <div class="flex flex-col gap-3 mr-auto">
                     <label class="text-sm text-gray-300 mb-1">Режим</label>
                     <div class="flex bg-medium-jungle-900/80 rounded-full p-1 border border-white/10">
-                        <button @click="setMode('allTime')" :class="mode === 'allTime' ? 'bg-bright-lemon-400 text-gray-900' : 'text-gray-300 hover:text-white'" class="px-6 py-2.5 rounded-full font-bold text-sm transition-colors duration-200">За все время</button>
-                        <button @click="setMode('singleGame')" :class="mode === 'singleGame' ? 'bg-bright-lemon-400 text-gray-900' : 'text-gray-300 hover:text-white'" class="px-6 py-2.5 rounded-full font-bold text-sm transition-colors duration-200">За одну игру</button>
+                        <button @click="setMode('allTime')"
+                            :class="mode === 'allTime' ? 'bg-bright-lemon-400 text-gray-900' : 'text-gray-300 hover:text-white'"
+                            class="px-6 py-2.5 rounded-full font-bold text-sm transition-colors duration-200">За все
+                            время</button>
+                        <button @click="setMode('singleGame')"
+                            :class="mode === 'singleGame' ? 'bg-bright-lemon-400 text-gray-900' : 'text-gray-300 hover:text-white'"
+                            class="px-6 py-2.5 rounded-full font-bold text-sm transition-colors duration-200">За одну
+                            игру</button>
                     </div>
                 </div>
-                
+
                 <div class="flex flex-col gap-3">
                     <label for="searchName" class="text-sm text-gray-300 mb-1">Поиск по имени</label>
                     <input type="text" id="searchName" x-model="searchName" placeholder="Введите имя..."
@@ -46,7 +53,7 @@
                         </ul>
                     </div>
                 </div>
-                
+
                 <!-- Extra filters for single game mode -->
                 <div class="flex flex-col gap-3" x-show="mode === 'singleGame'" x-cloak>
                     <label class="text-sm text-gray-300 mb-1">Мин. букв</label>
@@ -56,7 +63,7 @@
                         min="1" max="33" step="1" title="Введите количество букв от 1 до 33"
                         class="w-24 px-4 py-3 border border-white/20 bg-white/5 rounded-full text-white focus:outline-none focus:border-bright-lemon-400 transition-colors placeholder-gray-400" />
                 </div>
-                
+
                 <div class="flex flex-col gap-3" x-show="mode === 'singleGame'" x-cloak>
                     <label class="text-sm text-gray-300 mb-1">Скорость</label>
                     <div x-data="{ selectedVel: 'Любая', options: ['Любая', '1', '2', '3', '4', '5'], isOpenVel: false }"
@@ -97,7 +104,8 @@
                     </div>
                 </div>
             </div>
-            <div data-simplebar class="lb-table-div overflow-y-auto h-9/12 rounded-xl bg-medium-jungle-900/50 mt-4" x-show="mode === 'allTime'">
+            <div data-simplebar class="lb-table-div overflow-y-auto h-9/12 rounded-xl bg-medium-jungle-900/50 mt-4"
+                x-show="mode === 'allTime'">
                 <template x-if="filteredAndSortedLeaders.length === 0">
                     <div class="text-center py-8 text-gray-400 text-lg">
                         Результаты отсутствуют
@@ -143,13 +151,16 @@
                                     <span x-text="getRankBadge(player.rank)"></span>
                                 </td>
                                 <td class="py-3 px-4 text-white font-medium">
-                                    <a :href="'/profile/' + player.id" class="flex items-center gap-3 hover:text-bright-lemon-400 transition-colors w-max">
-                                        <img :src="'data:image/png;base64,' + player.avatar_b64" class="w-8 h-8 rounded-full object-cover border border-bright-lemon-400">
+                                    <a :href="'/profile/' + player.id"
+                                        class="flex items-center gap-3 hover:text-bright-lemon-400 transition-colors w-max">
+                                        <img :src="'data:image/png;base64,' + player.avatar_b64"
+                                            class="w-8 h-8 rounded-full object-cover border border-bright-lemon-400">
                                         <span x-text="player.name"></span>
                                     </a>
                                 </td>
-                                <td class="py-3 px-4 text-center text-gray-300" x-text="player.grade !== '0' ? player.grade : 'Н/у'"></td>
-                                <td class="py-3 px-4 text-center text-bright-lemon-300 font-semibold"   
+                                <td class="py-3 px-4 text-center text-gray-300"
+                                    x-text="player.grade !== '0' ? player.grade : 'Н/у'"></td>
+                                <td class="py-3 px-4 text-center text-bright-lemon-300 font-semibold"
                                     x-text="player.score.toLocaleString()"></td>
                             </tr>
                         </template>
@@ -157,7 +168,8 @@
                 </table>
             </div>
 
-            <div data-simplebar class="lb-table-div overflow-y-auto h-9/12 rounded-xl bg-medium-jungle-900/50 mt-4" x-show="mode === 'singleGame'" x-cloak>
+            <div data-simplebar class="lb-table-div overflow-y-auto h-9/12 rounded-xl bg-medium-jungle-900/50 mt-4"
+                x-show="mode === 'singleGame'" x-cloak>
                 <template x-if="filteredAndSortedGames.length === 0">
                     <div class="text-center py-8 text-gray-400 text-lg">
                         Результаты отсутствуют
@@ -166,30 +178,50 @@
                 <table class="min-w-full table-auto border-collapse" x-show="filteredAndSortedGames.length > 0">
                     <thead class="sticky top-0 bg-medium-jungle-900 z-10">
                         <tr class="border-b border-white/20">
-                            <th class="py-3 px-4 text-center text-gray-300 font-semibold uppercase tracking-wider w-16 align-bottom">#</th>
-                            
-                            <th class="py-3 px-4 text-left text-gray-300 font-semibold uppercase tracking-wider cursor-pointer hover:text-white transition-colors select-none align-bottom" @click="sortBy('name')">
-                                <div class="flex items-center justify-start gap-2"><span>Имя</span><span class="text-bright-lemon-400 material-symbols-rounded" x-text="getArrow('name')"></span></div>
-                            </th>
-                            
-                            <th class="py-3 px-4 text-center text-gray-300 font-semibold uppercase tracking-wider w-24 cursor-pointer hover:text-white transition-colors select-none align-bottom" @click="sortBy('grade')">
-                                <div class="flex items-center justify-center gap-2"><span>Класс</span><span class="text-bright-lemon-400 material-symbols-rounded" x-text="getArrow('grade')"></span></div>
-                            </th>
-                            
-                            <th class="py-3 px-4 text-center text-gray-300 font-semibold uppercase tracking-wider w-32 cursor-pointer hover:text-white transition-colors select-none align-bottom" @click="sortBy('chars_len')">
-                                <div class="flex items-center justify-center gap-2"><span>Буквы</span><span class="text-bright-lemon-400 material-symbols-rounded" x-text="getArrow('chars_len')"></span></div>
-                            </th>
-                            
-                            <th class="py-3 px-4 text-center text-gray-300 font-semibold uppercase tracking-wider w-32 cursor-pointer hover:text-white transition-colors select-none align-bottom" @click="sortBy('velocity')">
-                                <div class="flex items-center justify-center gap-2"><span>Скорость</span><span class="text-bright-lemon-400 material-symbols-rounded" x-text="getArrow('velocity')"></span></div>
-                            </th>
-                            
-                            <th class="py-3 px-4 text-center text-gray-300 font-semibold uppercase tracking-wider w-24 cursor-pointer hover:text-white transition-colors select-none align-bottom" @click="sortBy('time')">
-                                <div class="flex items-center justify-center gap-2"><span>Время</span><span class="text-bright-lemon-400 material-symbols-rounded" x-text="getArrow('time')"></span></div>
+                            <th
+                                class="py-3 px-4 text-center text-gray-300 font-semibold uppercase tracking-wider w-16 align-bottom">
+                                #</th>
+
+                            <th class="py-3 px-4 text-left text-gray-300 font-semibold uppercase tracking-wider cursor-pointer hover:text-white transition-colors select-none align-bottom"
+                                @click="sortBy('name')">
+                                <div class="flex items-center justify-start gap-2"><span>Имя</span><span
+                                        class="text-bright-lemon-400 material-symbols-rounded"
+                                        x-text="getArrow('name')"></span></div>
                             </th>
 
-                            <th class="py-3 px-4 text-center text-gray-300 font-semibold uppercase tracking-wider w-32 cursor-pointer hover:text-white transition-colors select-none align-bottom" @click="sortBy('score')">
-                                <div class="flex items-center justify-center gap-2"><span>Очки</span><span class="text-bright-lemon-400 material-symbols-rounded" x-text="getArrow('score')"></span></div>
+                            <th class="py-3 px-4 text-center text-gray-300 font-semibold uppercase tracking-wider w-24 cursor-pointer hover:text-white transition-colors select-none align-bottom"
+                                @click="sortBy('grade')">
+                                <div class="flex items-center justify-center gap-2"><span>Класс</span><span
+                                        class="text-bright-lemon-400 material-symbols-rounded"
+                                        x-text="getArrow('grade')"></span></div>
+                            </th>
+
+                            <th class="py-3 px-4 text-center text-gray-300 font-semibold uppercase tracking-wider w-32 cursor-pointer hover:text-white transition-colors select-none align-bottom"
+                                @click="sortBy('chars_len')">
+                                <div class="flex items-center justify-center gap-2"><span>Буквы</span><span
+                                        class="text-bright-lemon-400 material-symbols-rounded"
+                                        x-text="getArrow('chars_len')"></span></div>
+                            </th>
+
+                            <th class="py-3 px-4 text-center text-gray-300 font-semibold uppercase tracking-wider w-32 cursor-pointer hover:text-white transition-colors select-none align-bottom"
+                                @click="sortBy('velocity')">
+                                <div class="flex items-center justify-center gap-2"><span>Скорость</span><span
+                                        class="text-bright-lemon-400 material-symbols-rounded"
+                                        x-text="getArrow('velocity')"></span></div>
+                            </th>
+
+                            <th class="py-3 px-4 text-center text-gray-300 font-semibold uppercase tracking-wider w-24 cursor-pointer hover:text-white transition-colors select-none align-bottom"
+                                @click="sortBy('time')">
+                                <div class="flex items-center justify-center gap-2"><span>Время</span><span
+                                        class="text-bright-lemon-400 material-symbols-rounded"
+                                        x-text="getArrow('time')"></span></div>
+                            </th>
+
+                            <th class="py-3 px-4 text-center text-gray-300 font-semibold uppercase tracking-wider w-32 cursor-pointer hover:text-white transition-colors select-none align-bottom"
+                                @click="sortBy('score')">
+                                <div class="flex items-center justify-center gap-2"><span>Очки</span><span
+                                        class="text-bright-lemon-400 material-symbols-rounded"
+                                        x-text="getArrow('score')"></span></div>
                             </th>
                         </tr>
                     </thead>
@@ -201,12 +233,15 @@
                                     <span x-text="getRankBadge(game.rank)"></span>
                                 </td>
                                 <td class="py-3 px-4 text-white font-medium">
-                                    <a :href="'/profile/' + game.user_id" class="flex items-center gap-3 hover:text-bright-lemon-400 transition-colors w-max">
-                                        <img :src="'data:image/png;base64,' + game.avatar_b64" class="w-8 h-8 rounded-full object-cover border border-bright-lemon-400">
+                                    <a :href="'/profile/' + game.user_id"
+                                        class="flex items-center gap-3 hover:text-bright-lemon-400 transition-colors w-max">
+                                        <img :src="'data:image/png;base64,' + game.avatar_b64"
+                                            class="w-8 h-8 rounded-full object-cover border border-bright-lemon-400">
                                         <span x-text="game.name"></span>
                                     </a>
                                 </td>
-                                <td class="py-3 px-4 text-center text-gray-300" x-text="game.grade !== '0' ? game.grade : 'Н/у'"></td>
+                                <td class="py-3 px-4 text-center text-gray-300"
+                                    x-text="game.grade !== '0' ? game.grade : 'Н/у'"></td>
                                 <td class="py-3 px-4 text-center text-white" x-text="game.chars_len"></td>
                                 <td class="py-3 px-4 text-center text-white" x-text="game.velocity + 'x'"></td>
                                 <td class="py-3 px-4 text-center text-white" x-text="game.time + 'с'"></td>

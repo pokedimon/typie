@@ -2,7 +2,8 @@
 
 {% block content %}
 <main x-data="editProfile()" class="px-4 mt-10 flex flex-col py-4 items-center">
-    <div class="bg-medium-jungle-900/80 text-white rounded-3xl p-8 sm:p-10 backdrop-blur-xs shadow-2xl max-w-6xl w-full">
+    <div
+        class="bg-medium-jungle-900/80 text-white rounded-3xl p-8 sm:p-10 backdrop-blur-xs shadow-2xl max-w-6xl w-full">
         <div class="flex flex-row justify-between items-center gap-12 w-full">
             <div class="flex flex-row items-center gap-6">
                 <div class="shrink-0">
@@ -113,38 +114,47 @@
             x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-20"
             @click.outside="closeModal()"
             class="bg-medium-jungle-900/90 w-full max-w-md rounded-3xl shadow-2xl relative backdrop-blur-md p-8 border border-white/10">
-            
-            <button @click="closeModal()" type="button" class="absolute top-6 right-6 text-white hover:text-bright-lemon-400 text-xl transition-colors">
+
+            <button @click="closeModal()" type="button"
+                class="absolute top-6 right-6 text-white hover:text-bright-lemon-400 text-xl transition-colors">
                 <span class="material-symbols-rounded">close</span>
             </button>
-            
+
             <h2 class="text-2xl font-bold text-bright-lemon-300 mb-6 text-center font-press-start">Профиль</h2>
-            
+
             <form @submit.prevent="submitEdit" class="flex flex-col gap-4">
                 <div class="flex flex-col items-center mb-2">
                     <div class="relative group cursor-pointer mb-4">
-                        <img :src="previewUrl ? previewUrl : 'data:image/png;base64,{{ avatar_b64 }}'" class="w-32 h-32 rounded-full object-cover border-4 border-bright-lemon-400">
-                        <div class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <img :src="previewUrl ? previewUrl : 'data:image/png;base64,{{ avatar_b64 }}'"
+                            class="w-32 h-32 rounded-full object-cover border-4 border-bright-lemon-400">
+                        <div
+                            class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                             <span class="material-symbols-rounded text-white">edit</span>
                         </div>
-                        <input type="file" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" x-ref="fileInput" @change="handleFileChange">
+                        <input type="file" accept="image/*"
+                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" x-ref="fileInput"
+                            @change="handleFileChange">
                     </div>
-                    <p class="text-xs text-gray-400 text-center">Нажмите, чтобы изменить аватар.<br>Изображение должно быть квадратным.</p>
+                    <p class="text-xs text-gray-400 text-center">Нажмите, чтобы изменить аватар.<br>Изображение должно
+                        быть квадратным.</p>
                 </div>
-                
+
                 <div class="flex flex-col gap-1">
                     <label class="text-gray-300 text-sm pl-2">Имя</label>
-                    <input type="text" x-model="firstName" required class="border border-white/20 bg-white/5 text-white p-3 rounded-full focus:outline-none focus:border-bright-lemon-400 transition-colors">
+                    <input type="text" x-model="firstName" required
+                        class="border border-white/20 bg-white/5 text-white p-3 rounded-full focus:outline-none focus:border-bright-lemon-400 transition-colors">
                 </div>
-                
+
                 <div class="flex flex-col gap-1">
                     <label class="text-gray-300 text-sm pl-2">Фамилия</label>
-                    <input type="text" x-model="lastName" required class="border border-white/20 bg-white/5 text-white p-3 rounded-full focus:outline-none focus:border-bright-lemon-400 transition-colors">
+                    <input type="text" x-model="lastName" required
+                        class="border border-white/20 bg-white/5 text-white p-3 rounded-full focus:outline-none focus:border-bright-lemon-400 transition-colors">
                 </div>
-                
+
                 <p x-show="errorMessage" x-text="errorMessage" class="text-red-500 text-sm text-center mt-2"></p>
-                
-                <button type="submit" class="bg-bright-lemon-400 hover:bg-bright-lemon-600 text-gray-900 font-bold mt-4 py-3 px-6 rounded-full font-montserrat transition-colors duration-200 shadow-lg">
+
+                <button type="submit"
+                    class="bg-bright-lemon-400 hover:bg-bright-lemon-600 text-gray-900 font-bold mt-4 py-3 px-6 rounded-full font-montserrat transition-colors duration-200 shadow-lg">
                     Сохранить
                 </button>
             </form>
@@ -161,7 +171,7 @@
             avatarB64: null,
             previewUrl: null,
             errorMessage: '',
-            
+
             openModal() {
                 this.isOpen = true;
                 this.firstName = '{{ user.first_name }}';
@@ -169,19 +179,19 @@
                 this.errorMessage = '';
                 this.previewUrl = null;
                 this.avatarB64 = null;
-                if(this.$refs.fileInput) {
+                if (this.$refs.fileInput) {
                     this.$refs.fileInput.value = '';
                 }
             },
-            
+
             closeModal() {
                 this.isOpen = false;
             },
-            
+
             handleFileChange(event) {
                 const file = event.target.files[0];
                 if (!file) return;
-                
+
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const img = new Image();
@@ -192,14 +202,14 @@
                             return;
                         }
                         this.errorMessage = '';
-                        
+
                         // Resize to 512x512
                         const canvas = document.createElement('canvas');
                         canvas.width = 512;
                         canvas.height = 512;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, 512, 512);
-                        
+
                         this.avatarB64 = canvas.toDataURL('image/png');
                         this.previewUrl = this.avatarB64;
                     };
@@ -207,7 +217,7 @@
                 };
                 reader.readAsDataURL(file);
             },
-            
+
             async submitEdit() {
                 const payload = {
                     first_name: this.firstName,
@@ -216,7 +226,7 @@
                 if (this.avatarB64) {
                     payload.avatar_b64 = this.avatarB64;
                 }
-                
+
                 try {
                     const response = await fetch('/edit_profile', {
                         method: 'POST',
@@ -225,7 +235,7 @@
                         },
                         body: JSON.stringify(payload)
                     });
-                    
+
                     if (response.ok) {
                         window.location.reload();
                     } else {
