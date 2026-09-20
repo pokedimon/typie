@@ -1,4 +1,10 @@
 import os
+import sys
+
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 import json
 from flask import Flask, render_template, url_for, request, redirect, jsonify, session, current_app
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
@@ -8,10 +14,13 @@ from app.db.db_connection import database
 from app.models.user_model import User
 from app.models.game_model import Game
 
-app = Flask(__name__, instance_path=os.getcwd())
-app.config['SERVER_NAME'] = 'localhost:8081'
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+app = Flask(__name__, instance_path=BASE_DIR)
 app.config["SECRET_KEY"] = secrets.token_urlsafe(32)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db/typie.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+    "SQLALCHEMY_DATABASE_URI",
+    f"sqlite:///{os.path.join(BASE_DIR, 'db', 'typie.db')}"
+)
 app.config['SQLALCHEMY_ECHO'] = True
 
 login_manager = LoginManager()
@@ -139,7 +148,8 @@ def create_user():
     user_data = json.loads(request.data)
     if not user_data.get('message'):
         if not database.session.query(User).filter(User.login == user_data["login"]).first():
-            with open('static/img/default_pfp.png', 'rb') as f:
+            default_pfp_path = os.path.join(BASE_DIR, 'static', 'img', 'default_pfp.png')
+            with open(default_pfp_path, 'rb') as f:
                 pfp_bytes = f.read()
             user = User(
                 login=user_data["login"],
@@ -245,4 +255,7 @@ def create_game():
 
 
 if __name__ == "__main__":
-    app.run(port=8081, debug=True)
+    host = os.environ.get("FLASK_RUN_HOST", "0.0.0.0")
+    port = int(os.environ.get("FLASK_RUN_PORT", 8081))
+    debug = os.environ.get("FLASK_DEBUG", "True").lower() in ("true", "1")
+    app.run(host=host, port=port, debug=debug)
