@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<main x-data="editProfile()" class="px-4 mt-10 flex flex-col py-4 items-center">
+<main x-data="editProfile('{{ user.first_name }}', '{{ user.last_name }}')" class="px-4 mt-10 flex flex-col py-4 items-center">
     <div
         class="bg-medium-jungle-900/80 text-white rounded-3xl p-8 sm:p-10 backdrop-blur-xs shadow-2xl max-w-6xl w-full">
         <div class="flex flex-row justify-between items-center gap-12 w-full">
@@ -162,90 +162,5 @@
     </div>
 </main>
 
-<script>
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('editProfile', () => ({
-            isOpen: false,
-            firstName: '{{ user.first_name }}',
-            lastName: '{{ user.last_name }}',
-            avatarB64: null,
-            previewUrl: null,
-            errorMessage: '',
-
-            openModal() {
-                this.isOpen = true;
-                this.firstName = '{{ user.first_name }}';
-                this.lastName = '{{ user.last_name }}';
-                this.errorMessage = '';
-                this.previewUrl = null;
-                this.avatarB64 = null;
-                if (this.$refs.fileInput) {
-                    this.$refs.fileInput.value = '';
-                }
-            },
-
-            closeModal() {
-                this.isOpen = false;
-            },
-
-            handleFileChange(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        if (img.width !== img.height) {
-                            this.errorMessage = 'Изображение должно быть квадратным (соотношение сторон 1:1)';
-                            this.$refs.fileInput.value = '';
-                            return;
-                        }
-                        this.errorMessage = '';
-
-                        // Resize to 512x512
-                        const canvas = document.createElement('canvas');
-                        canvas.width = 512;
-                        canvas.height = 512;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, 512, 512);
-
-                        this.avatarB64 = canvas.toDataURL('image/png');
-                        this.previewUrl = this.avatarB64;
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            },
-
-            async submitEdit() {
-                const payload = {
-                    first_name: this.firstName,
-                    last_name: this.lastName,
-                };
-                if (this.avatarB64) {
-                    payload.avatar_b64 = this.avatarB64;
-                }
-
-                try {
-                    const response = await fetch('/edit_profile', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (response.ok) {
-                        window.location.reload();
-                    } else {
-                        this.errorMessage = 'Произошла ошибка при сохранении';
-                    }
-                } catch (error) {
-                    this.errorMessage = 'Произошла ошибка';
-                }
-            }
-        }));
-    });
-</script>
+<script src="{{ url_for('static', filename='js/edit-profile.js') }}"></script>
 {% endblock %}

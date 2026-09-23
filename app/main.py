@@ -1,6 +1,12 @@
 import os
 import sys
 
+# ---------------------------------------------------------------------------
+# Path Configuration:
+# Ensure the root of the project is included in sys.path so that absolute
+# imports like `from app.db.db_connection import ...` work regardless of
+# the current working directory or execution context (e.g. running python directly).
+# ---------------------------------------------------------------------------
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
@@ -14,6 +20,14 @@ from app.db.db_connection import database
 from app.models.user_model import User
 from app.models.game_model import Game
 
+# ---------------------------------------------------------------------------
+# Flask Application Setup & Configuration:
+# - BASE_DIR points to the /app directory.
+# - instance_path is set to BASE_DIR so instance files resolve relative to /app.
+# - SECRET_KEY is generated using secrets.token_urlsafe(32) for secure session cookies.
+# - SQLALCHEMY_DATABASE_URI uses environment variable or defaults to SQLite in app/db/typie.db.
+# - SQLALCHEMY_ECHO outputs all executed SQL statements to the console for debugging.
+# ---------------------------------------------------------------------------
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__, instance_path=BASE_DIR)
 app.config["SECRET_KEY"] = secrets.token_urlsafe(32)
@@ -23,6 +37,12 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
 )
 app.config['SQLALCHEMY_ECHO'] = True
 
+# ---------------------------------------------------------------------------
+# Authentication & Database Initialization:
+# - LoginManager handles session-based user authentication.
+# - database.init_app(app) binds the SQLAlchemy instance to this Flask app.
+# - database.create_all() inside an application context creates all tables if they don't exist yet.
+# ---------------------------------------------------------------------------
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -31,11 +51,22 @@ with app.app_context():
     database.create_all()
 
 
+# ---------------------------------------------------------------------------
+# Flask-Login User Loader:
+# Flask-Login calls this callback with the user ID stored in the session cookie
+# on every request to retrieve and populate `current_user`.
+# ---------------------------------------------------------------------------
 @login_manager.user_loader
 def load_user(user_id):
     return database.session.get(User, user_id)
 
 
+# ---------------------------------------------------------------------------
+# Levels Dataset Loader:
+# Reads levels line-by-line from a JSON Lines (.jsonl) file in static/json/levels.jsonl.
+# Each line represents a distinct level containing text, difficulty, and metadata.
+# Gracefully falls back to an empty list if the file is missing.
+# ---------------------------------------------------------------------------
 def _load_levels():
     loaded = []
     file_path = os.path.join(current_app.static_folder, "json", "levels.jsonl")
@@ -50,15 +81,27 @@ def _load_levels():
     return loaded
 
 
+# Load all levels into memory once at application startup
 with app.app_context():
     LEVELS = _load_levels()
 
 
+# ---------------------------------------------------------------------------
+# Unauthorized Handler:
+# Redirects unauthenticated users trying to access routes protected by
+# @login_required to the index page with the '#login' hash to automatically
+# trigger the login modal in the UI.
+# ---------------------------------------------------------------------------
 @login_manager.unauthorized_handler
 def unauthorized_callback():
     return redirect(url_for('index') + '#login')
 
 
+# ---------------------------------------------------------------------------
+# Main / Landing Page:
+# Serves the home page template (index.html). Supports an optional 'message'
+# parameter for flash/status notices.
+# ---------------------------------------------------------------------------
 @app.route("/", methods=["GET", "POST"])
 @app.route("/index", methods=["GET", "POST"])
 @app.route("/index?message=<string:message>")
@@ -66,18 +109,34 @@ def index(message=[]):
     return render_template("index.html", message=message)
 
 
+# ---------------------------------------------------------------------------
+# Sandbox Mode:
+# Free-typing practice playground. Requires the user to be logged in.
+# ---------------------------------------------------------------------------
 @app.route("/sandbox")
 @login_required
 def sandbox():
     return render_template("game.html")
 
 
+# ---------------------------------------------------------------------------
+# Levels List Page:
+# Displays available levels and tracks current user progress.
+# Progress is read from current_user.level for logged-in users,
+# or from session['level'] for anonymous/guest users.
+# ---------------------------------------------------------------------------
 @app.route("/levels")
 def levels():
     user_level = current_user.level if current_user.is_authenticated else session.get('level', 0)
     return render_template("levels.html", levels=LEVELS, current_level=user_level)
 
 
+# ---------------------------------------------------------------------------
+# Level Play Route:
+# Serves a specific level for playing.
+# Enforces linear progression: users cannot skip ahead beyond (current_level + 1).
+# If the level doesn't exist or is locked, redirects back to the /levels map.
+# ---------------------------------------------------------------------------
 @app.route("/level/<int:level_id>")
 def play_level(level_id):
     user_level = current_user.level if current_user.is_authenticated else session.get('level', 0)
@@ -89,6 +148,14 @@ def play_level(level_id):
     return render_template("level_play.html", level=lvl)
 
 
+# ---------------------------------------------------------------------------
+# Update Level Progress (API):
+# Receives JSON payload `{"level": <id>}` when a user completes a level.
+# If the completed level is higher than their current recorded progress:
+# - Logged-in users: updates and commits `current_user.level` to the database.
+# - Guest users: stores the new level in their Flask `session`.
+# Returns a JSON confirmation with the highest level reached.
+# ---------------------------------------------------------------------------
 @app.route("/update_level", methods=["POST"])
 def update_level():
     data = json.loads(request.data)
@@ -105,11 +172,22 @@ def update_level():
     return jsonify({"status": "ok", "level": max(completed_level_id, user_level)})
 
 
+# ---------------------------------------------------------------------------
+# Leaderboard Page:
+# Renders the leaderboard HTML skeleton. The actual leaderboard data is
+# populated client-side via fetch calls to `/api/leaderboard` and `/api/games`.
+# ---------------------------------------------------------------------------
 @app.route("/leaderboard", methods=["GET", "POST"])
 def leaderboard():
     return render_template("leaderboard.html")
 
 
+# ---------------------------------------------------------------------------
+# User Profile View:
+# Displays user info and stats for a given user ID.
+# Fetches the user from the database, converts binary avatar bytes into a
+# base64 UTF-8 string for inline HTML rendering, or redirects to index if not found.
+# ---------------------------------------------------------------------------
 @app.route("/profile/<int:user_id>")
 def profile(user_id):
     user = database.session.get(User, user_id)
@@ -119,6 +197,12 @@ def profile(user_id):
     return render_template("profile.html", user=user, avatar_b64=avatar_b64)
 
 
+# ---------------------------------------------------------------------------
+# Edit Profile (API):
+# Allows logged-in users to update their first name, last name, and avatar.
+# Base64 avatar strings (e.g. data URLs from client-side file uploaders) are
+# stripped of their header prefix, decoded into raw bytes, and saved to the database.
+# ---------------------------------------------------------------------------
 @app.route("/edit_profile", methods=["POST"])
 @login_required
 def edit_profile():
@@ -143,6 +227,14 @@ def edit_profile():
     return jsonify({"status": "ok"})
 
 
+# ---------------------------------------------------------------------------
+# User Registration / Creation (API):
+# Receives JSON with login credentials and profile metadata.
+# 1. Checks if the username/login is already taken.
+# 2. Reads the default avatar image from static/img/default_pfp.png as bytes.
+# 3. Creates the new User model instance and hashes the password securely.
+# 4. Commits the record to the database and returns a redirect response to index.
+# ---------------------------------------------------------------------------
 @app.route("/createuser", methods=["POST"])
 def create_user():
     user_data = json.loads(request.data)
@@ -169,6 +261,13 @@ def create_user():
     return jsonify({"messages": user_data.get('message', [])})
 
 
+# ---------------------------------------------------------------------------
+# User Authentication / Login (API):
+# Receives JSON payload with `login` and `password`.
+# Queries the database for the user by login, verifies the password hash,
+# logs the user into the session via `login_user`, and returns a redirect URL.
+# If verification fails, returns an error message.
+# ---------------------------------------------------------------------------
 @app.route("/login", methods=["POST"])
 def login():
     user_data = json.loads(request.data)
@@ -179,12 +278,21 @@ def login():
     return jsonify({"messages": ['Неверный логин или пароль']})
 
 
+# ---------------------------------------------------------------------------
+# User Logout:
+# Clears the user session using Flask-Login's logout_user() and redirects to index.
+# ---------------------------------------------------------------------------
 @app.route("/logout")
 def logout():
     logout_user()
     return redirect("/index")
 
 
+# ---------------------------------------------------------------------------
+# Leaderboard Data by Users (API):
+# Returns a ranked JSON list of all users sorted by total_score descending.
+# Includes formatted name, grade, score, rank, and base64-encoded avatar string.
+# ---------------------------------------------------------------------------
 @app.route("/api/leaderboard", methods=["GET"])
 def api_leaderboard():
     users = database.session.query(User).order_by(User.total_score.desc()).all()
@@ -201,6 +309,11 @@ def api_leaderboard():
     return jsonify(result)
 
 
+# ---------------------------------------------------------------------------
+# Leaderboard Data by Games / Typing Runs (API):
+# Returns a ranked JSON list of individual game sessions sorted by score descending.
+# Includes characters count, typing velocity/WPM, duration, score, and player details.
+# ---------------------------------------------------------------------------
 @app.route("/api/games", methods=["GET"])
 def api_games():
     games = database.session.query(Game).order_by(Game.score.desc()).all()
@@ -220,12 +333,21 @@ def api_games():
     return jsonify(result)
 
 
+# ---------------------------------------------------------------------------
+# Get Score (API):
+# Returns the total cumulative score for the currently logged-in user.
+# ---------------------------------------------------------------------------
 @app.route("/get_score", methods=["GET"])
 @login_required
 def get_score():
     return jsonify({"total_score": current_user.total_score})
 
 
+# ---------------------------------------------------------------------------
+# Update Total Score (API):
+# Receives a new score in JSON `{"score": <number>}`.
+# Updates `current_user.total_score` in the database and commits the transaction.
+# ---------------------------------------------------------------------------
 @app.route("/update_score", methods=["POST"])
 @login_required
 def update_score():
@@ -238,6 +360,12 @@ def update_score():
     return jsonify({"status": "ok", "total_score": current_user.total_score})
 
 
+# ---------------------------------------------------------------------------
+# Record Completed Game Session (API):
+# Receives performance telemetry for a single typing session (chars typed,
+# velocity, time elapsed, score), instantiates a Game model attached to
+# current_user.id, and commits it to the database.
+# ---------------------------------------------------------------------------
 @app.route("/creategame", methods=["POST"])
 @login_required
 def create_game():
@@ -254,6 +382,13 @@ def create_game():
     return jsonify({"status": "ok", "game_id": game.id})
 
 
+# ---------------------------------------------------------------------------
+# Server Entry Point:
+# Runs the Flask application using environment variables:
+# - FLASK_RUN_HOST: host IP (defaults to 0.0.0.0 for container/network access)
+# - FLASK_RUN_PORT: port number (defaults to 8081)
+# - FLASK_DEBUG: debug mode flag (defaults to True)
+# ---------------------------------------------------------------------------
 if __name__ == "__main__":
     host = os.environ.get("FLASK_RUN_HOST", "0.0.0.0")
     port = int(os.environ.get("FLASK_RUN_PORT", 8081))

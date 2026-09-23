@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<main x-data="levelHandler()">
+<main x-data="levelHandler({ id: {{ level.id }}, keys: '{{ level['keys'] }}', speed: {{ level.speed }}, time: {{ level.time }}, targetScore: {{ level.target_score }} })">
     <div class="grow flex flex-col items-center justify-center p-5 gap-5 text-white" x-init="init()"
         @keydown.window="handleInput">
         <div
@@ -122,12 +122,5 @@
         </div>
     </div>
 </main>
-<script>
-    const levelId = {{ level.id }};
-    const levelKeys = "{{ level['keys'] }}";
-    const levelSpeed = {{ level.speed }};
-    const levelTime = {{ level.time }};
-    const levelTargetScore = {{ level.target_score }};
-</script>
 <script src="{{ url_for('static', filename='js/level-logic.js') }}"></script>
 {% endblock %}
