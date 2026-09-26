@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<main x-data="authForm()" class="grow flex items-center justify-center p-4">
+    <div
+        class="bg-medium-jungle-900/90 w-[35vw] min-w-sm max-w-lg rounded-4xl shadow-lg relative backdrop-blur-xs p-8 border border-white/10">
+        <h2 class="text-2xl font-bold text-white mb-6 text-center">Вход</h2>
+        <form method="POST" class="flex flex-col gap-3 text-white" @submit.prevent="submitLogin">
+            <input type="text" placeholder="Логин" name="login" x-model="login" required
+                class="border border-white/20 bg-white/5 text-white p-3 rounded-full focus:outline-none focus:border-bright-lemon-400 transition-colors">
+            <input type="password" placeholder="Пароль" name="password" x-model="password" required
+                class="border border-white/20 bg-white/5 text-white p-3 rounded-full focus:outline-none focus:border-bright-lemon-400 transition-colors">
+
+            <div id="login-messages" class="flex flex-col gap-1"></div>
+            <input type="submit" value="Войти"
+                class="bg-bright-lemon-400 hover:bg-bright-lemon-600 text-gray-900 font-bold mt-4 py-2 px-6 rounded-full font-montserrat transition-colors duration-200 cursor-pointer">
+        </form>
+
+        <div class="mt-6 pt-4 border-t border-white/10 text-center text-gray-300 text-sm">
+            <span>Нет аккаунта?</span>
+            <a href="{{ url_for('register_form') }}"
+                class="text-bright-lemon-400 hover:text-bright-lemon-300 font-bold ml-1 underline transition-colors">
+                Зарегистрироваться
+            </a>
+        </div>
+    </div>
+</main>
+<script src="{{ url_for('static', filename='js/modal-route.js') }}"></script>
+
+{% endblock %}

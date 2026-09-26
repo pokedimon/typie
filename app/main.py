@@ -89,12 +89,11 @@ with app.app_context():
 # ---------------------------------------------------------------------------
 # Unauthorized Handler:
 # Redirects unauthenticated users trying to access routes protected by
-# @login_required to the index page with the '#login' hash to automatically
-# trigger the login modal in the UI.
+# @login_required to the dedicated login form page.
 # ---------------------------------------------------------------------------
 @login_manager.unauthorized_handler
 def unauthorized_callback():
-    return redirect(url_for('index') + '#login')
+    return redirect(url_for('login_form'))
 
 
 # ---------------------------------------------------------------------------
@@ -107,6 +106,26 @@ def unauthorized_callback():
 @app.route("/index?message=<string:message>")
 def index(message=[]):
     return render_template("index.html", message=message)
+
+
+# ---------------------------------------------------------------------------
+# Dedicated Authentication Pages:
+# - /login-form: Renders standalone login form.
+# - /register-form: Renders standalone registration form.
+# Redirects authenticated users to the index page.
+# ---------------------------------------------------------------------------
+@app.route("/login-form")
+def login_form():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    return render_template("login_form.html")
+
+
+@app.route("/register-form")
+def register_form():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    return render_template("register_form.html")
 
 
 # ---------------------------------------------------------------------------
@@ -254,6 +273,7 @@ def create_user():
             user.set_password(user_data["password"])
             database.session.add(user)
             database.session.commit()
+            login_user(user, remember=True)
             return jsonify({"redirect": url_for('index')})
         else:
             user_data.setdefault('message', []).append('Логин уже занят')
