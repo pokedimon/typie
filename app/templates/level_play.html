@@ -76,7 +76,7 @@
                         x-text="roundScore"></span> очков из {{ level.target_score }}!</p>
                 {% if level.id == 20 and not current_user.is_authenticated %}
                 <p class="text-white bg-red-500/50 p-4 rounded-xl mb-6 max-w-lg border border-red-500/50">Рекомендуем <a
-                        href="/#login" class="underline font-bold text-bright-lemon-300">войти в аккаунт</a>, иначе ваш
+                        href="{{ url_for('login_form') }}" class="underline font-bold text-bright-lemon-300">войти в аккаунт</a>, иначе ваш
                     прогресс не будет сохранен после закрытия браузера!</p>
                 {% endif %}
                 <div class="flex flex-col sm:flex-row gap-6">
