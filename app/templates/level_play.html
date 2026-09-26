@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-<main x-data="levelHandler({ id: {{ level.id }}, keys: '{{ level['keys'] }}', speed: {{ level.speed }}, time: {{ level.time }}, targetScore: {{ level.target_score }} })">
+<main
+    x-data="levelHandler({ id: {{ level.id }}, keys: '{{ level['keys'] }}', speed: {{ level.speed }}, time: {{ level.time }}, targetScore: {{ level.target_score }} })">
     <div class="grow flex flex-col items-center justify-center p-5 gap-5 text-white" x-init="init()"
         @keydown.window="handleInput">
         <div
@@ -76,7 +77,8 @@
                         x-text="roundScore"></span> очков из {{ level.target_score }}!</p>
                 {% if level.id == 20 and not current_user.is_authenticated %}
                 <p class="text-white bg-red-500/50 p-4 rounded-xl mb-6 max-w-lg border border-red-500/50">Рекомендуем <a
-                        href="{{ url_for('login_form') }}" class="underline font-bold text-bright-lemon-300">войти в аккаунт</a>, иначе ваш
+                        href="{{ url_for('login_form') }}" class="underline font-bold text-bright-lemon-300">войти в
+                        аккаунт</a>, иначе ваш
                     прогресс не будет сохранен после закрытия браузера!</p>
                 {% endif %}
                 <div class="flex flex-col sm:flex-row gap-6">
